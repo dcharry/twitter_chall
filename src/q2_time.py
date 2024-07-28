@@ -3,10 +3,16 @@ import pandas as pd
 import emoji
 import orjson
 
-def extract_emojis(text):
+def extract_emojis(text: str) -> List[str]:
+    """
+    Extrae todos los emojis de un texto dado.
+    
+    :param text: Texto del cual se extraerán los emojis.
+    :return: Lista de emojis encontrados en el texto.
+    """
     return [char for char in text if emoji.is_emoji(char)]
 
-def load_json_in_chunks(file_path: str, chunk_size=10000):
+def load_json_in_chunks(file_path: str, chunk_size: int = 10000) -> List[dict]:
     """
     Carga un archivo JSON en chunks para optimizar el tiempo y uso de memoria.
     
@@ -14,9 +20,9 @@ def load_json_in_chunks(file_path: str, chunk_size=10000):
     :param chunk_size: Tamaño del chunk en número de líneas.
     :return: Generador que produce chunks del archivo JSON.
     """
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r') as file:
         chunk = []
-        for line in f:
+        for line in file:
             chunk.append(orjson.loads(line))
             if len(chunk) == chunk_size:
                 yield chunk
@@ -24,7 +30,7 @@ def load_json_in_chunks(file_path: str, chunk_size=10000):
         if chunk:
             yield chunk
 
-def process_chunk(chunk):
+def process_chunk(chunk: List[dict]) -> pd.DataFrame:
     """
     Procesa un chunk de datos convirtiéndolo en un DataFrame y extrayendo emojis.
     
@@ -57,3 +63,4 @@ def q2_time(file_path: str) -> List[Tuple[str, int]]:
     top_emojis = all_emojis.value_counts().head(10)
     
     return list(top_emojis.items())
+
