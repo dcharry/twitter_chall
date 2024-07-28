@@ -7,10 +7,16 @@ import re
 # Expresión regular para encontrar menciones
 mention_pattern = re.compile(r'@(\w+)')
 
-def extract_mentions(text):
+def extract_mentions(text: str) -> List[str]:
+    """
+    Extrae todas las menciones (@usuario) de un texto dado.
+    
+    :param text: Texto de donde se extraerán las menciones.
+    :return: Lista de menciones encontradas en el texto.
+    """
     return mention_pattern.findall(text)
 
-def load_json_in_chunks(file_path: str, chunk_size=10000):
+def load_json_in_chunks(file_path: str, chunk_size: int = 10000) -> List[dict]:
     """
     Carga un archivo JSON en chunks para optimizar el uso de tiempo y de memoria.
     
@@ -18,9 +24,9 @@ def load_json_in_chunks(file_path: str, chunk_size=10000):
     :param chunk_size: Tamaño del chunk en número de líneas.
     :return: Generador que produce chunks del archivo JSON.
     """
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r') as file:
         chunk = []
-        for line in f:
+        for line in file:
             chunk.append(orjson.loads(line))
             if len(chunk) == chunk_size:
                 yield chunk
@@ -28,13 +34,14 @@ def load_json_in_chunks(file_path: str, chunk_size=10000):
         if chunk:
             yield chunk
 
-def process_chunk(chunk):
+def process_chunk(chunk: List[dict]) -> pd.DataFrame:
     """
     Procesa un chunk de datos extrayendo solo las columnas 'content' y 'user' y las menciones.
     
     :param chunk: Lista de registros JSON.
     :return: DataFrame procesado con una columna de menciones.
     """
+    # Extraer contenido y nombre de usuario
     contents = [(record['content'], record['user']['username']) for record in chunk]
     df_chunk = pd.DataFrame(contents, columns=['content', 'username'])
     
