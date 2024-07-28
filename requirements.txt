@@ -1,1 +1,7 @@
 memory-profiler==0.61.0
+emoji==2.12.1
+pandas==2.0.3
+time-machine==2.14.2
+orjson==3.10.6
+vaex==4.17.0
+dask==2024.7.1
