@@ -3,7 +3,7 @@ from datetime import datetime
 import orjson
 import pandas as pd
 
-def load_json_in_chunks(file_path: str, chunk_size=10000):
+def load_json_in_chunks(file_path: str, chunk_size: int = 10000) -> List[dict]:
     """
     Carga un archivo JSON en chunks para optimizar el tiempo y uso de memoria.
     
@@ -11,9 +11,9 @@ def load_json_in_chunks(file_path: str, chunk_size=10000):
     :param chunk_size: Tamaño del chunk en número de líneas.
     :return: Generador que produce chunks del archivo JSON.
     """
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r') as file:
         chunk = []
-        for line in f:
+        for line in file:
             chunk.append(orjson.loads(line))
             if len(chunk) == chunk_size:
                 yield chunk
@@ -21,7 +21,7 @@ def load_json_in_chunks(file_path: str, chunk_size=10000):
         if chunk:
             yield chunk
 
-def process_chunk(chunk):
+def process_chunk(chunk: List[dict]) -> pd.DataFrame:
     """
     Procesa un chunk de datos convirtiéndolo en un DataFrame y ajustando la columna de fecha.
     Convierte las columnas a tipos de datos más eficientes.
@@ -34,14 +34,12 @@ def process_chunk(chunk):
     # Convertir la columna 'date' a datetime y luego a solo fecha
     df_chunk['date'] = pd.to_datetime(df_chunk['date']).dt.date
     
-    # Convertir 'user' a un DataFrame separado
+    # Extraer nombre de usuario
     user_df = pd.json_normalize(df_chunk['user'])
     
     # Solo mantener las columnas necesarias
     df_chunk = df_chunk[['date']]
-    # Optimizar los tipos de datos
     df_chunk['user'] = user_df['username'].astype('category')
-    
     
     return df_chunk
 

@@ -1,14 +1,18 @@
 import pandas as pd
-import time
 from typing import List, Tuple
 import orjson
 import emoji
 
-# Función para extraer emojis
-def extract_emojis(text):
+def extract_emojis(text: str) -> List[str]:
+    """
+    Extrae todos los emojis de un texto dado.
+    
+    :param text: Texto del cual se extraerán los emojis.
+    :return: Lista de emojis encontrados en el texto.
+    """
     return [char for char in text if emoji.is_emoji(char)]
 
-def load_json_in_chunks(file_path: str, chunk_size=10000):
+def load_json_in_chunks(file_path: str, chunk_size: int = 10000) -> List[dict]:
     """
     Carga un archivo JSON en chunks para optimizar el uso de memoria.
     
@@ -16,9 +20,9 @@ def load_json_in_chunks(file_path: str, chunk_size=10000):
     :param chunk_size: Tamaño del chunk en número de líneas.
     :return: Generador que produce chunks del archivo JSON.
     """
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r') as file:
         chunk = []
-        for line in f:
+        for line in file:
             chunk.append(orjson.loads(line))
             if len(chunk) == chunk_size:
                 yield chunk
@@ -26,13 +30,14 @@ def load_json_in_chunks(file_path: str, chunk_size=10000):
         if chunk:
             yield chunk
 
-def process_chunk(chunk):
+def process_chunk(chunk: List[dict]) -> pd.DataFrame:
     """
     Procesa un chunk de datos extrayendo solo la columna 'content' y los emojis.
     
     :param chunk: Lista de registros JSON.
     :return: DataFrame procesado con una columna de emojis.
     """
+    # Extraer el contenido de los tweets
     contents = [record['content'] for record in chunk]
     df_chunk = pd.DataFrame(contents, columns=['content'])
     

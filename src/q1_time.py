@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 import orjson
 
-def load_json_in_chunks(file_path: str, chunk_size=10000):
+def load_json_in_chunks(file_path: str, chunk_size: int = 10000) -> List[dict]:
     """
     Carga un archivo JSON en chunks para optimizar el tiempo y uso de memoria.
     
@@ -11,9 +11,9 @@ def load_json_in_chunks(file_path: str, chunk_size=10000):
     :param chunk_size: Tamaño del chunk en número de líneas.
     :return: Generador que produce chunks del archivo JSON.
     """
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r') as file:
         chunk = []
-        for line in f:
+        for line in file:
             chunk.append(orjson.loads(line))
             if len(chunk) == chunk_size:
                 yield chunk
@@ -52,3 +52,4 @@ def q1_time(file_path: str) -> List[Tuple[datetime.date, str]]:
         result.append((date, top_user))
     
     return result
+
